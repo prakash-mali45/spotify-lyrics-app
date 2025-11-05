@@ -34,9 +34,7 @@ st.markdown("""
         box-shadow:0 10px 25px rgba(0,0,0,0.15);
         transform: translateY(-2px);
     }
-    iframe, .stVideo {
-        border-radius:15px;
-    }
+    iframe, .stVideo { border-radius:15px; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -66,7 +64,7 @@ def youtube_search(query):
 # Header
 # -----------------------------
 st.markdown("<div class='main-title'>🎧 Spotify + YouTube Explorer</div>", unsafe_allow_html=True)
-st.markdown("<div class='sub'>Search any song and instantly stream its YouTube video!</div>", unsafe_allow_html=True)
+st.markdown("<div class='sub'>Search any song and instantly find its YouTube video!</div>", unsafe_allow_html=True)
 
 # -----------------------------
 # Input
@@ -95,7 +93,7 @@ if st.button("Search"):
                 yt = youtube_search(f"{title} {artists}")
 
                 st.markdown("<div class='card'>", unsafe_allow_html=True)
-                c1, c2 = st.columns([1.2, 2])  # Spotify info | YouTube video
+                c1, c2 = st.columns([1.2, 2])
 
                 with c1:
                     st.image(img, use_container_width=True)
@@ -108,15 +106,15 @@ if st.button("Search"):
                 with c2:
                     if yt:
                         st.markdown(f"**🎬 {yt['title']}** — {yt['channel']}")
-                        thumbnail_url = f"https://img.youtube.com/vi/{yt['id']}/hqdefault.jpg"
-                        youtube_url = yt["link"]
+                        thumbnail = f"https://img.youtube.com/vi/{yt['id']}/hqdefault.jpg"
                         st.markdown(
                             f"""
-                            <a href="{youtube_url}" target="_blank">
-                                <img src="{thumbnail_url}" width="100%" style="border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+                            <a href="{yt['link']}" target="_blank">
+                                <img src="{thumbnail}" width="100%" 
+                                style="border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
                             </a>
                             <br>
-                            <a href="{youtube_url}" target="_blank" style="text-decoration:none;">
+                            <a href="{yt['link']}" target="_blank" style="text-decoration:none;">
                                 ▶️ Watch on YouTube
                             </a>
                             """,
