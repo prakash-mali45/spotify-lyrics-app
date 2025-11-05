@@ -34,7 +34,7 @@ st.markdown("""
         box-shadow:0 10px 25px rgba(0,0,0,0.15);
         transform: translateY(-2px);
     }
-    iframe {
+    iframe, .stVideo {
         border-radius:15px;
     }
     </style>
@@ -97,7 +97,6 @@ if st.button("Search"):
                 st.markdown("<div class='card'>", unsafe_allow_html=True)
                 c1, c2 = st.columns([1.2, 2])  # Spotify info | YouTube video
 
-                # --- Left: Spotify Info ---
                 with c1:
                     st.image(img, use_container_width=True)
                     st.markdown(f"### 🎵 {title}")
@@ -106,12 +105,10 @@ if st.button("Search"):
                     st.markdown(f"**Release Date:** {release}")
                     st.markdown(f"[🎧 Listen on Spotify]({spotify_link})")
 
-                # --- Right: YouTube Video ---
                 with c2:
                     if yt:
                         st.markdown(f"**🎬 {yt['title']}** — {yt['channel']}")
-                        embed_url = f"https://www.youtube.com/embed/{yt['id']}"
-                        st.components.v1.iframe(embed_url, height=315)
+                        st.video(f"https://www.youtube.com/watch?v={yt['id']}")
                         st.markdown(f"[▶️ Watch on YouTube]({yt['link']})")
                     else:
                         st.info("No YouTube video found.")
