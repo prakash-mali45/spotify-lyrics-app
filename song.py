@@ -1,10 +1,11 @@
 import streamlit as st
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyClientCredentials
-from youtubesearchpython import VideosSearch
+import requests
+from urllib.parse import quote_plus
 
 # -----------------------------
-# Spotify API credentials
+# Spotify Credentials
 # -----------------------------
 SPOTIFY_CLIENT_ID = "b6ccc00d266b4c28b249d3d3e5d9949f"
 SPOTIFY_CLIENT_SECRET = "9cf6ca53668d4e64a5eed6f799dbfa08"
@@ -13,7 +14,7 @@ sp = Spotify(client_credentials_manager=SpotifyClientCredentials(
     client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_CLIENT_SECRET))
 
 # -----------------------------
-# Streamlit Config
+# Streamlit UI Setup
 # -----------------------------
 st.set_page_config(page_title="🎵 Spotify + YouTube Finder", layout="wide")
 
@@ -34,37 +35,34 @@ st.markdown("""
         box-shadow:0 10px 25px rgba(0,0,0,0.15);
         transform: translateY(-2px);
     }
-    iframe, .stVideo { border-radius:15px; }
     </style>
 """, unsafe_allow_html=True)
 
 # -----------------------------
-# Helper: YouTube Search
+# YouTube Search (Custom)
 # -----------------------------
-@st.cache_data(show_spinner=False)
-def youtube_search(query):
-    search_terms = [f"{query} official video", f"{query} lyrics", f"{query} audio"]
-    for term in search_terms:
-        try:
-            results = VideosSearch(term, limit=1).result()
-            if results.get("result"):
-                v = results["result"][0]
-                vid_id = v.get("id") or v.get("link", "").split("v=")[-1]
-                return {
-                    "title": v.get("title"),
-                    "id": vid_id,
-                    "link": v.get("link"),
-                    "channel": v.get("channel", {}).get("name")
-                }
-        except Exception:
-            continue
+def youtube_search_fallback(query):
+    """Search YouTube video by scraping — works even when API fails."""
+    try:
+        search_query = quote_plus(query + " official video")
+        url = f"https://www.youtube.com/results?search_query={search_query}"
+        html = requests.get(url).text
+        start = html.find("/watch?v=")
+        if start != -1:
+            video_id = html[start+9:start+20]
+            return {
+                "id": video_id,
+                "link": f"https://www.youtube.com/watch?v={video_id}"
+            }
+    except:
+        pass
     return None
 
 # -----------------------------
 # Header
 # -----------------------------
 st.markdown("<div class='main-title'>🎧 Spotify + YouTube Explorer</div>", unsafe_allow_html=True)
-st.markdown("<div class='sub'>Search any song and instantly find its YouTube video!</div>", unsafe_allow_html=True)
+st.markdown("<div class='sub'>Find Spotify songs with direct YouTube links!</div>", unsafe_allow_html=True)
 
 # -----------------------------
 # Input
@@ -90,12 +88,12 @@ if st.button("Search"):
                 img = track["album"]["images"][0]["url"]
                 spotify_link = track["external_urls"]["spotify"]
 
-                yt = youtube_search(f"{title} {artists}")
+                yt = youtube_search_fallback(f"{title} {artists}")
 
                 st.markdown("<div class='card'>", unsafe_allow_html=True)
-                c1, c2 = st.columns([1.2, 2])
+                col1, col2 = st.columns([1.2, 2])
 
-                with c1:
+                with col1:
                     st.image(img, use_container_width=True)
                     st.markdown(f"### 🎵 {title}")
                     st.markdown(f"**Artist:** {artists}")
@@ -103,9 +101,8 @@ if st.button("Search"):
                     st.markdown(f"**Release Date:** {release}")
                     st.markdown(f"[🎧 Listen on Spotify]({spotify_link})")
 
-                with c2:
+                with col2:
                     if yt:
-                        st.markdown(f"**🎬 {yt['title']}** — {yt['channel']}")
                         thumbnail = f"https://img.youtube.com/vi/{yt['id']}/hqdefault.jpg"
                         st.markdown(
                             f"""
