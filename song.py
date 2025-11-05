@@ -108,8 +108,20 @@ if st.button("Search"):
                 with c2:
                     if yt:
                         st.markdown(f"**🎬 {yt['title']}** — {yt['channel']}")
-                        st.video(f"https://www.youtube.com/watch?v={yt['id']}")
-                        st.markdown(f"[▶️ Watch on YouTube]({yt['link']})")
+                        thumbnail_url = f"https://img.youtube.com/vi/{yt['id']}/hqdefault.jpg"
+                        youtube_url = yt["link"]
+                        st.markdown(
+                            f"""
+                            <a href="{youtube_url}" target="_blank">
+                                <img src="{thumbnail_url}" width="100%" style="border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+                            </a>
+                            <br>
+                            <a href="{youtube_url}" target="_blank" style="text-decoration:none;">
+                                ▶️ Watch on YouTube
+                            </a>
+                            """,
+                            unsafe_allow_html=True
+                        )
                     else:
                         st.info("No YouTube video found.")
 
